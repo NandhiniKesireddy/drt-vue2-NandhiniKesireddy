@@ -1,28 +1,29 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <v-app>
+    <v-container
+      fluid
+      style="background: linear-gradient(to right, rgb(10, 56, 101), rgb(50, 100, 150)); height: 100vh;"
+    >
+      <v-row no-gutters>
+        <v-col cols="9">
+          <asset-table />
+        </v-col>
+        <v-col cols="3">
+          <selected-assets />
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import AssetTable from './components/AssetTable.vue';
+import SelectedAssets from './components/SelectedAssets.vue';
 
 export default {
-  name: 'App',
   components: {
-    HelloWorld
+    AssetTable,
+    SelectedAssets
   }
-}
+};
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
