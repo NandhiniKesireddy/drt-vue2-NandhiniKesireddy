@@ -12,8 +12,9 @@ export default new Vuex.Store({
       objectTypes: ["ROCKET BODY", "DEBRIS", "UNKNOWN", "PAYLOAD"],
       search: "",
       country: "",
-      regime: "",
       purpose: "",
+      constellation: [],
+      regime: [],
     },
   },
   mutations: {
@@ -49,8 +50,17 @@ export default new Vuex.Store({
       if (state.filters.country) {
         items = items.filter(i => i.countryCode === state.filters.country);
       }
-      if (state.filters.regime) {
-        items = items.filter(i => i.orbitCode === state.filters.regime);
+      // if (state.filters.regime) {
+      //   items = items.filter(i => i.orbitCode === state.filters.regime);
+      // }
+      if (Array.isArray(state.filters.regime) && state.filters.regime.length > 0) {
+        items = items.filter(i => {
+          const cleanedOrbit = i.orbitCode?.replace(/[{}]/g, ''); // Remove { and }
+          return state.filters.regime.includes(cleanedOrbit);
+        });
+      }
+      if (Array.isArray(state.filters.constellation) && state.filters.constellation.length > 0) {
+        items = items.filter(i => state.filters.constellation.includes(i.objectType));
       }
       if (state.filters.search) {
         items = items.filter(i => i.name?.toLowerCase().includes(state.filters.search.toLowerCase()));

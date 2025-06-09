@@ -9,7 +9,7 @@
       class="ma-0 pa-0"
     >
       <v-col
-        cols="10"
+        cols="2"
         style="color: white !important"
       >
         <v-checkbox
@@ -24,6 +24,7 @@
           </template>
         </v-checkbox>
       </v-col>
+      <v-col cols="8" />
       <v-col
         cols="2"
         class="text-right"

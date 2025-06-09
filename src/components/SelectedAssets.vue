@@ -99,6 +99,7 @@
       large
       color="#00bfff"
       style="color: black; font-weight: bold;"
+      @click="proceed"
     >
       PROCEED
     </v-btn>
@@ -118,8 +119,22 @@ export default {
     ...mapMutations({
       removeAsset: 'REMOVE_ASSET',
       clearAssets: 'CLEAR_ASSETS'
-    })
-  }
+    }),
+    proceed() {
+      // Save selectedAssets in localStorage
+      localStorage.setItem('selectedAssets', JSON.stringify(this.selectedAssets));
+
+      // Always try navigating, but catch NavigationDuplicated errors
+      this.$router.push({ name: 'SelectedList' }).catch(err => {
+        if (err.name !== 'NavigationDuplicated') {
+          // Re-throw if it's a different error
+          throw err;
+        }
+        // Else silently ignore
+      });
+    }
+  },
+   
 };
 </script>
 
