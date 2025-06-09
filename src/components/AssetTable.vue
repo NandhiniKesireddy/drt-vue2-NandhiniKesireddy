@@ -1,26 +1,43 @@
+<!-- eslint-disable vue/valid-v-slot -->
 <template>
-  <div class="pr-5">
+  <div class="pr-5 pt-3">
     <top-bar @filter-change="onFilterChange" />
 
-    <v-row no-gutters align="center" class="ma-0 pa-0">
-      <v-col cols="10">
+    <v-row
+      no-gutters
+      align="center"
+      class="ma-0 pa-0"
+    >
+      <v-col
+        cols="10"
+        style="color: white !important"
+      >
         <v-checkbox
           v-model="selectAll"
-          label="Select All"
           hide-details
-          class="ma-0 pa-0 white--text"
-          style="color: white"
+          class="ma-0 pa-0 text-caption"
+          color="white"
           @change="toggleSelectAll"
-        />
+        >
+          <template #label>
+            <span class="white--text">Select All</span>
+          </template>
+        </v-checkbox>
       </v-col>
-      <v-col cols="2" class="text-right">
+      <v-col
+        cols="2"
+        class="text-right"
+      >
         <span class="white--text text-caption">
           {{ visibleItems.length }} Objects
         </span>
       </v-col>
     </v-row>
 
-    <v-divider class="ma-1" color="grey darken-1" />
+    <v-divider
+      class="ma-1"
+      color="grey darken-1"
+    />
 
     <!-- Scrollable Wrapper -->
     <div
@@ -39,7 +56,6 @@
         fixed-header
       >
         <!-- Action Checkbox Slot -->
-        <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template #item.action="{ item }">
           <v-checkbox
             :input-value="isSelected(item.noradCatId)"
@@ -48,6 +64,19 @@
             color="primary"
             @change="() => toggleItem(item)"
           />
+        </template>
+
+        <template #item.objectType="{ item }">
+          <v-icon
+            :color="getObjectTypeColor(item.objectType)"
+            small
+          >
+            {{ getObjectTypeIcon(item.objectType) }}
+          </v-icon>
+        </template>
+
+        <template #item.orbitCode="{ item }">
+          {{ formatOrbitCode(item.orbitCode) }}
         </template>
 
         <!-- No Data Slot -->
@@ -91,6 +120,7 @@ export default {
         { text: "COSPARID", value: "intlDes" },
         { text: "Regime", value: "orbitCode" },
         { text: "Country", value: "countryCode" },
+        { text: "Type", value: "objectType", width: 80 },
       ],
     };
   },
@@ -133,6 +163,10 @@ export default {
       "updateFilters",
       "clearSelectedAssets",
     ]),
+
+    formatOrbitCode(value) {
+      return value ? value.replace(/[{}]/g, '') : '';
+    },
 
     onFilterChange(filters) {
       this.updateFilters(filters);
@@ -183,6 +217,35 @@ export default {
         }, 300);
       }
     },
+      getObjectTypeIcon(type) {
+    switch (type?.toUpperCase()) {
+      case 'PAYLOAD':
+        return 'mdi-satellite-variant';
+      case 'DEBRIS':
+        return 'mdi-close-octagon';
+      case 'ROCKET BODY':
+        return 'mdi-rocket';
+      case 'UNKNOWN':
+        return 'mdi-help-circle';
+      default:
+        return 'mdi-help-circle-outline';
+    }
+  },
+  getObjectTypeColor(type) {
+    switch (type?.toUpperCase()) {
+      case 'PAYLOAD':
+        return 'blue';
+      case 'DEBRIS':
+        return 'red';
+      case 'ROCKET BODY':
+        return 'green';
+      case 'UNKNOWN':
+        return 'grey';
+      default:
+        return 'grey';
+    }
+  },
+
   },
 };
 </script>

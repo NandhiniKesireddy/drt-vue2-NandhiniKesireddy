@@ -57,6 +57,9 @@ export default new Vuex.Store({
       }
       return items;
     },
+    allObjectTypes(state) {
+      return [...new Set(state.satelliteItems.map(item => item.objectType))];
+    },
     allCountries(state) {
       console.log('state.satelliteItems', state.satelliteItems)
       return [...new Set(state.satelliteItems.map(item => item.countryCode))];

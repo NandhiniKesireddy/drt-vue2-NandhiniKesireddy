@@ -1,9 +1,15 @@
 <template>
   <div>
-    <h2 class="text-white my-2">Create My Asset List</h2>
+    <h2 class="text-white my-2">
+      Create My Asset List
+    </h2>
 
     <!-- Object Type Filter Buttons -->
-    <v-row dense class="px-2 py-1" style="background: black; border-radius: 2px">
+    <v-row
+      dense
+      class="px-2 py-1"
+      style="background: black; border-radius: 2px"
+    >
       <v-btn
         v-for="item in assetTypes"
         :key="item.label"
@@ -13,13 +19,21 @@
         class="ma-1"
         @click="toggleType(item.value)"
       >
-        <v-icon left small>{{ item.icon }}</v-icon>
+        <v-icon
+          left
+          small
+        >
+          {{ item.icon }}
+        </v-icon>
         {{ item.label }} ({{ item.count }})
       </v-btn>
     </v-row>
 
     <!-- Search & Filters -->
-    <v-row dense class="mt-3 px-2">
+    <v-row
+      dense
+      class="mt-3 px-2"
+    >
       <v-col cols="4">
         <v-text-field
           v-model="searchText"
@@ -36,12 +50,13 @@
 
       <v-col cols="2">
         <v-select
-          v-model="selectedCountry"
-          :items="allCountries"
+          v-model="selectedConstellation"
+          :items="allObjectTypes"
           label="Constellation"
           solo 
           dense 
           clearable
+          multiple
           @change="emitFilters"
         />
       </v-col>
@@ -81,18 +96,30 @@
           @change="emitFilters"
         />
       </v-col>
-
-      <v-col cols="2" class="text-right">
-        <v-btn icon @click="toggleFilterPanel">
-          <v-icon color="white">mdi-filter-variant</v-icon>
+    </v-row>
+    <v-row style="margin-top:-10px">
+      <v-col cols="8" />
+      <v-col cols="2">
+        <v-btn
+          block
+          color="primary"
+          class="white--text mt-2"
+          @click="applyFilters"
+        >
+          Apply Filters
         </v-btn>
       </v-col>
 
-      <!-- <v-col cols="2">
-        <v-btn block color="error" class="white--text mt-2" @click="resetFilters">
+      <v-col cols="2">
+        <v-btn
+          block
+          color="error"
+          class="white--text mt-2"
+          @click="resetFilters"
+        >
           Clear All
         </v-btn>
-      </v-col> -->
+      </v-col>
     </v-row>
   </div>
 </template>
@@ -107,12 +134,13 @@ export default {
       selectedCountry: '',
       selectedRegime: '',
       selectedPurpose: '',
+      selectedConstellation: [],
       selectedObjectTypes: ['ROCKET BODY', 'DEBRIS', 'UNKNOWN', 'PAYLOAD'],
       purposes: ['COMMUNICATION', 'EARTH OBSERVATION', 'NAVIGATION', 'SCIENCE']
     };
   },
   computed: {
-    ...mapGetters(['allCountries', 'allRegimes', 'assetTypeCounts']),
+    ...mapGetters(['allCountries', 'allRegimes', 'assetTypeCounts', 'allObjectTypes']),
     assetTypes() {
       return [
         { label: 'All Objects', value: ['ROCKET BODY', 'DEBRIS', 'UNKNOWN', 'PAYLOAD'], icon: 'mdi-select', count: this.assetTypeCounts.ALL },
@@ -131,8 +159,8 @@ export default {
       this.selectedObjectTypes = typeList;
       this.emitFilters();
     },
-    toggleFilterPanel() {
-      this.$emit("toggle-filter-panel");
+    applyFilters() {
+      this.emitFilters();
     },
     isSelectedType(typeList) {
       return (
@@ -144,6 +172,7 @@ export default {
       this.$store.dispatch('updateFilters', {
         search: this.searchText,
         country: this.selectedCountry,
+        constellation: this.selectedConstellation,
         regime: this.selectedRegime,
         purpose: this.selectedPurpose,
         objectTypes: this.selectedObjectTypes
@@ -152,6 +181,7 @@ export default {
     resetFilters() {
       this.searchText = '';
       this.selectedCountry = '';
+      this.selectedConstellation = [];
       this.selectedRegime = '';
       this.selectedPurpose = '';
       this.selectedObjectTypes = ['ROCKET BODY', 'DEBRIS', 'UNKNOWN', 'PAYLOAD'];
