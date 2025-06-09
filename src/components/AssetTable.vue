@@ -2,16 +2,18 @@
 <template>
   <div class="pr-5 pt-3">
     <top-bar @filter-change="onFilterChange" />
-
-    <v-row
-      no-gutters
-      align="center"
-      class="ma-0 pa-0"
+    <v-snackbar
+      v-model="showAlert"
+      top
+      right
+      color="red darken-2"
+      timeout="3000"
     >
-      <v-col
-        cols="2"
-        style="color: white !important"
-      >
+      You can select a maximum of 10 assets only.
+    </v-snackbar>
+
+    <v-row no-gutters align="center" class="ma-0 pa-0">
+      <v-col cols="2" style="color: white !important">
         <v-checkbox
           v-model="selectAll"
           hide-details
@@ -25,23 +27,24 @@
         </v-checkbox>
       </v-col>
       <v-col cols="8" />
-      <v-col
-        cols="2"
-        class="text-right"
-      >
+      <v-col cols="2" class="text-right">
         <span class="white--text text-caption">
           {{ visibleItems.length }} Objects
         </span>
       </v-col>
     </v-row>
 
-    <v-divider
-      class="ma-1"
-      color="grey darken-1"
+    <v-divider class="ma-1" color="grey darken-1" />
+
+    <v-skeleton-loader
+      v-if="isLoading"
+      type="table"
+      height="300px"
+      class="mx-2 my-4"
     />
 
-    <!-- Scrollable Wrapper -->
     <div
+      v-show="!isLoading"
       ref="scrollWrapper"
       class="custom-scroll-wrapper"
       @scroll="handleScroll"
@@ -56,22 +59,18 @@
         disable-pagination
         fixed-header
       >
-        <!-- Action Checkbox Slot -->
         <template #item.action="{ item }">
           <v-checkbox
             :input-value="isSelected(item.noradCatId)"
             :disabled="!isSelected(item.noradCatId) && selectedAssets.length >= 10"
             hide-details
             color="primary"
-            @change="() => toggleItem(item)"
+            @change="() => handleSelect(item)"
           />
         </template>
 
         <template #item.typeIcon="{ item }">
-          <v-icon
-            :color="getObjectTypeColor(item.objectType)"
-            small
-          >
+          <v-icon :color="getObjectTypeColor(item.objectType)" small>
             {{ getObjectTypeIcon(item.objectType) }}
           </v-icon>
         </template>
@@ -80,14 +79,8 @@
           {{ formatOrbitCode(item.orbitCode) }}
         </template>
 
-        <!-- No Data Slot -->
         <template #no-data>
-          <v-alert
-            :value="true"
-            type="info"
-            border="left"
-            color="blue lighten-3"
-          >
+          <v-alert :value="true" type="info" border="left" color="blue lighten-3">
             No satellite data found
           </v-alert>
         </template>
@@ -111,6 +104,8 @@ export default {
   components: { TopBar },
   data() {
     return {
+      isLoading: true,
+      showAlert: false,
       selectAll: false,
       itemsToShow: 50,
       loadingMore: false,
@@ -122,7 +117,7 @@ export default {
         { text: 'ObjectType', value: 'objectType', sortable: false, width: 80 },
         { text: 'Country', value: 'countryCode', sortable: true },
         { text: 'Launch Date', value: 'launchDate', sortable: true },
-        { text: "Type", value: "typeIcon", sortable: false, width: 80 },
+        { text: 'Type', value: 'typeIcon', sortable: false, width: 80 },
       ],
     };
   },
@@ -155,7 +150,9 @@ export default {
     },
   },
   mounted() {
-    this.fetchSatellitesData();
+    this.fetchSatellitesData().then(() => {
+      this.isLoading = false;
+    });
   },
   methods: {
     ...mapActions([
@@ -174,10 +171,14 @@ export default {
       this.updateFilters(filters);
     },
 
-    toggleItem(item) {
+    handleSelect(item) {
       if (this.isSelected(item.noradCatId)) {
         this.removeAsset(item.noradCatId);
       } else {
+        if (this.selectedAssets.length >= 10) {
+          this.showAlert = true;
+          return;
+        }
         this.addAsset(item);
       }
     },
@@ -219,6 +220,7 @@ export default {
         }, 300);
       }
     },
+
     getObjectTypeIcon(type) {
       switch (type?.toUpperCase()) {
         case 'PAYLOAD':
@@ -255,12 +257,10 @@ export default {
 .white--text {
   color: white !important;
 }
-
 .custom-scroll-wrapper {
   max-height: 450px;
   overflow-y: auto;
 }
-
 ::v-deep(.v-data-table__wrapper) {
   overflow-y: visible !important;
   max-height: unset !important;

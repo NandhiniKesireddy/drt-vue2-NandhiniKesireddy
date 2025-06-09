@@ -50,9 +50,6 @@ export default new Vuex.Store({
       if (state.filters.country) {
         items = items.filter(i => i.countryCode === state.filters.country);
       }
-      // if (state.filters.regime) {
-      //   items = items.filter(i => i.orbitCode === state.filters.regime);
-      // }
       if (Array.isArray(state.filters.regime) && state.filters.regime.length > 0) {
         items = items.filter(i => {
           const cleanedOrbit = i.orbitCode?.replace(/[{}]/g, ''); // Remove { and }

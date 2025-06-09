@@ -1,6 +1,5 @@
 <template>
   <div class="pt-10">
-    <!-- Title Outside the Card -->
     <div 
       class="text-h6 mb-2 font-weight-bold" 
       style="color: white;"
@@ -8,13 +7,11 @@
       Selected Assets
     </div>
 
-    <!-- Selected Assets Card -->
     <v-card
       flat
       height="550px"
       style="background: linear-gradient(to bottom, #0a3865, #000); color: white; border: 1px solid #4fc3f7;"
     >
-      <!-- Header Row -->
       <v-row 
         justify="space-between" 
         align="center"
@@ -43,19 +40,16 @@
         color="grey darken-1" 
       />
 
-      <!-- List -->
       <div
         class="pa-4"
         style="max-height: 550px; overflow-y: auto;"
       >
-        <!-- style="max-height: 400px; overflow-y: auto;" -->
         <v-row
           v-for="item in selectedAssets"
           :key="item.noradCatId"
           align="center"
           style="border-bottom: 1px solid #1e2e3e;"
         >
-          <!-- class="py-1 px-2" -->
           <v-col
             cols="3"
             class="text-left"
@@ -92,7 +86,6 @@
       </div>
     </v-card>
 
-    <!-- Proceed Button -->
     <v-btn
       class="mt-4"
       block
@@ -121,16 +114,12 @@ export default {
       clearAssets: 'CLEAR_ASSETS'
     }),
     proceed() {
-      // Save selectedAssets in localStorage
       localStorage.setItem('selectedAssets', JSON.stringify(this.selectedAssets));
 
-      // Always try navigating, but catch NavigationDuplicated errors
       this.$router.push({ name: 'SelectedList' }).catch(err => {
         if (err.name !== 'NavigationDuplicated') {
-          // Re-throw if it's a different error
           throw err;
         }
-        // Else silently ignore
       });
     }
   },
@@ -139,7 +128,6 @@ export default {
 </script>
 
 <style scoped>
-/* Optional custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }

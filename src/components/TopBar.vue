@@ -4,7 +4,6 @@
       Create My Asset List
     </h2>
 
-    <!-- Object Type Filter Buttons -->
     <v-row
       dense
       class="px-2 py-1"
@@ -29,7 +28,6 @@
       </v-btn>
     </v-row>
 
-    <!-- Search & Filters -->
     <v-row
       dense
       class="mt-3 px-2"
