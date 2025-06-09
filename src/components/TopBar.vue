@@ -1,44 +1,32 @@
 <template>
   <div>
-    <h2 class="text-white my-2">
-      Create My Asset List
-    </h2>
+    <h2 class="text-white my-2">Create My Asset List</h2>
 
-    <!-- Object Type Filter -->
-    <v-row
-      dense
-      class="px-2 py-1"
-      style="background: black; border-radius: 2px"
-    >
+    <!-- Object Type Filter Buttons -->
+    <v-row dense class="px-2 py-1" style="background: black; border-radius: 2px">
       <v-btn
         v-for="item in assetTypes"
         :key="item.label"
-        text
-        class="white--text"
+        :text="!isSelectedType(item.value)"
+        :outlined="isSelectedType(item.value)"
+        color="white"
+        class="ma-1"
         @click="toggleType(item.value)"
       >
-        <v-icon
-          left
-          small
-        >
-          {{ item.icon }}
-        </v-icon>
+        <v-icon left small>{{ item.icon }}</v-icon>
         {{ item.label }} ({{ item.count }})
       </v-btn>
     </v-row>
 
     <!-- Search & Filters -->
-    <v-row
-      dense
-      class="mt-3 px-2"
-    >
+    <v-row dense class="mt-3 px-2">
       <v-col cols="4">
         <v-text-field
           v-model="searchText"
           append-icon="mdi-magnify"
           label="Search by Name"
-          solo
-          dense
+          solo 
+          dense 
           clearable
           @keyup.enter="emitFilters"
           @click:append="emitFilters"
@@ -51,8 +39,8 @@
           v-model="selectedCountry"
           :items="allCountries"
           label="Constellation"
-          solo
-          dense
+          solo 
+          dense 
           clearable
           @change="emitFilters"
         />
@@ -63,8 +51,8 @@
           v-model="selectedCountry"
           :items="allCountries"
           label="Country"
-          solo
-          dense
+          solo 
+          dense 
           clearable
           @change="emitFilters"
         />
@@ -75,8 +63,8 @@
           v-model="selectedRegime"
           :items="allRegimes"
           label="Regime"
-          solo
-          dense
+          solo 
+          dense 
           clearable
           @change="emitFilters"
         />
@@ -87,12 +75,24 @@
           v-model="selectedPurpose"
           :items="purposes"
           label="Purpose"
-          solo
-          dense
+          solo 
+          dense 
           clearable
           @change="emitFilters"
         />
       </v-col>
+
+      <v-col cols="2" class="text-right">
+        <v-btn icon @click="toggleFilterPanel">
+          <v-icon color="white">mdi-filter-variant</v-icon>
+        </v-btn>
+      </v-col>
+
+      <!-- <v-col cols="2">
+        <v-btn block color="error" class="white--text mt-2" @click="resetFilters">
+          Clear All
+        </v-btn>
+      </v-col> -->
     </v-row>
   </div>
 </template>
@@ -107,32 +107,38 @@ export default {
       selectedCountry: '',
       selectedRegime: '',
       selectedPurpose: '',
-      selectedConstellation: '',
       selectedObjectTypes: ['ROCKET BODY', 'DEBRIS', 'UNKNOWN', 'PAYLOAD'],
-      purposes: [],
-      assetTypes: [
-        { label: 'All Objects', value: ['ROCKET BODY', 'DEBRIS', 'UNKNOWN', 'PAYLOAD'], icon: 'mdi-select', count: 27949 },
-        { label: 'Payloads', value: ['PAYLOAD'], icon: 'mdi-satellite-variant', count: 14035 },
-        { label: 'Debris', value: ['DEBRIS'], icon: 'mdi-close-octagon', count: 10588 },
-        { label: 'Rocket Bodies', value: ['ROCKET BODY'], icon: 'mdi-rocket', count: 2167 },
-        { label: 'Unknown', value: ['UNKNOWN'], icon: 'mdi-help-circle', count: 23456 }
-      ]
+      purposes: ['COMMUNICATION', 'EARTH OBSERVATION', 'NAVIGATION', 'SCIENCE']
     };
   },
   computed: {
-        // allCountries: (state) => [...new Set(state.satellites.map(item => item.countryCode))],
-        // allRegimes: (state) => [...new Set(state.satellites.map(item => item.orbitCode.replace(/[{}]/g, '')))],
-    ...mapGetters(['allCountries', 'allRegimes']),
+    ...mapGetters(['allCountries', 'allRegimes', 'assetTypeCounts']),
+    assetTypes() {
+      return [
+        { label: 'All Objects', value: ['ROCKET BODY', 'DEBRIS', 'UNKNOWN', 'PAYLOAD'], icon: 'mdi-select', count: this.assetTypeCounts.ALL },
+        { label: 'Payloads', value: ['PAYLOAD'], icon: 'mdi-satellite-variant', count: this.assetTypeCounts.PAYLOAD },
+        { label: 'Debris', value: ['DEBRIS'], icon: 'mdi-close-octagon', count: this.assetTypeCounts.DEBRIS },
+        { label: 'Rocket Bodies', value: ['ROCKET BODY'], icon: 'mdi-rocket', count: this.assetTypeCounts['ROCKET BODY'] },
+        { label: 'Unknown', value: ['UNKNOWN'], icon: 'mdi-help-circle', count: this.assetTypeCounts.UNKNOWN }
+      ];
+    }
+  },
+   mounted() {
+    this.$store.dispatch('fetchSatellitesData'); // Initial fetch
   },
   methods: {
     toggleType(typeList) {
       this.selectedObjectTypes = typeList;
       this.emitFilters();
     },
+    toggleFilterPanel() {
+      this.$emit("toggle-filter-panel");
+    },
     isSelectedType(typeList) {
-      // Highlight the selected asset type buttons
-      if (this.selectedObjectTypes.length !== typeList.length) return false;
-      return this.selectedObjectTypes.every(t => typeList.includes(t));
+      return (
+        this.selectedObjectTypes.length === typeList.length &&
+        this.selectedObjectTypes.every(t => typeList.includes(t))
+      );
     },
     emitFilters() {
       this.$store.dispatch('updateFilters', {
@@ -144,9 +150,7 @@ export default {
       });
     },
     resetFilters() {
-      // Reset all filters to default values
       this.searchText = '';
-      this.selectedConstellation = '';
       this.selectedCountry = '';
       this.selectedRegime = '';
       this.selectedPurpose = '';
@@ -160,5 +164,12 @@ export default {
 <style scoped>
 h2 {
   color: white;
+}
+
+.v-btn {
+  transition: 0.2s;
+}
+.v-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 </style>

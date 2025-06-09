@@ -57,36 +57,36 @@ export default new Vuex.Store({
       }
       return items;
     },
-//     filteredSatelliteItems: (state) => {
-//   const { search, country, regime, purpose, objectTypes } = state.filters || {};
-
-//   return state.satellites.filter((item) => {
-//     const matchSearch = !search || item.name.toLowerCase().includes(search.toLowerCase());
-//     const matchCountry = !country || item.countryCode === country;
-//     const matchRegime = !regime || item.orbitCode === regime;
-//     const matchPurpose = !purpose || item.purpose === purpose;
-//     const matchObjectType = !objectTypes || objectTypes.includes(item.objectType);
-//     return matchSearch && matchCountry && matchRegime && matchPurpose && matchObjectType;
-//   });
-// },
-
-// isSelected: (state) => (id) => {
-//   return state.selectedAssets.some((asset) => asset.noradCatId === id);
-// },
-
-// allSatellites: (state) => state.satellites,
-
     allCountries(state) {
       console.log('state.satelliteItems', state.satelliteItems)
       return [...new Set(state.satelliteItems.map(item => item.countryCode))];
     },
     allRegimes(state) {
       return [...new Set(state.satelliteItems.map(item => item.orbitCode.replace(/[{}]/g, '')))];
+    },
+    assetTypeCounts: (state) => {
+      const counts = {
+        PAYLOAD: 0,
+        'ROCKET BODY': 0,
+        DEBRIS: 0,
+        UNKNOWN: 0,
+      };
+      state.satelliteItems.forEach(item => {
+        const type = item.objectType?.toUpperCase();
+        if (counts[type] !== undefined) counts[type]++;
+      });
+      return {
+        PAYLOAD: counts.PAYLOAD,
+        'ROCKET BODY': counts['ROCKET BODY'],
+        DEBRIS: counts.DEBRIS,
+        UNKNOWN: counts.UNKNOWN,
+        ALL: Object.values(counts).reduce((a, b) => a + b, 0)
+      };
     }
   },
   actions: {
     async fetchSatellitesData({ commit, state }) {
-      const attributes = ["noradCatId", "intlDes", "name", "orbitCode", "countryCode"];
+      const attributes = ["noradCatId", "intlDes", "name", "launchDate", "decayDate", "objectType", "launchSiteCode", "orbitCode", "countryCode"];
       try {
         const res = await fetchSatellites(state.filters.objectTypes, attributes);
         const result = Array.isArray(res.data.data) ? res.data.data : [];

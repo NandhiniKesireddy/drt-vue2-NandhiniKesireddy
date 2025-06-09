@@ -1,14 +1,8 @@
-<!-- eslint-disable vue/valid-v-slot -->
 <template>
   <div class="pr-5">
     <top-bar @filter-change="onFilterChange" />
 
-    <!-- Select All & Object Count -->
-    <v-row
-      no-gutters
-      align="center"
-      class="ma-0 pa-0"
-    >
+    <v-row no-gutters align="center" class="ma-0 pa-0">
       <v-col cols="10">
         <v-checkbox
           v-model="selectAll"
@@ -19,55 +13,63 @@
           @change="toggleSelectAll"
         />
       </v-col>
-      <v-col
-        cols="2"
-        class="text-right"
-      >
+      <v-col cols="2" class="text-right">
         <span class="white--text text-caption">
-          {{ visibleItems.length }} Objects , {{filteredSatelliteItems.length}} Objects
+          {{ visibleItems.length }} Objects
         </span>
       </v-col>
     </v-row>
 
-    <v-divider
-      class="ma-1"
-      color="grey darken-1"
-    />
+    <v-divider class="ma-1" color="grey darken-1" />
 
-    <v-data-table
-      :headers="headers"
-      :items="filteredSatelliteItems"
-      item-key="noradCatId"
-      class="elevation-1 pt-3"
-      height="450"
-      fixed-header
-      hide-default-footer
-      dense
-      :items-per-page="25"
+    <!-- Scrollable Wrapper -->
+    <div
+      ref="scrollWrapper"
+      class="custom-scroll-wrapper"
+      @scroll="handleScroll"
     >
-      <!-- Action Checkbox Slot -->
-      <template #item.action="{ item }">
-        <v-checkbox
-          :input-value="isSelected(item.noradCatId)"
-          :disabled="!isSelected(item.noradCatId) && selectedAssets.length >= 10"
-          hide-details
-          color="primary"
-          @change="() => toggleItem(item)"
-        />
-      </template>
+      <v-data-table
+        :headers="headers"
+        :items="visibleItems"
+        item-key="noradCatId"
+        class="elevation-1 pt-3 no-internal-scroll"
+        hide-default-footer
+        dense
+        disable-pagination
+        fixed-header
+      >
+        <!-- Action Checkbox Slot -->
+        <!-- eslint-disable-next-line vue/valid-v-slot -->
+        <template #item.action="{ item }">
+          <v-checkbox
+            :input-value="isSelected(item.noradCatId)"
+            :disabled="!isSelected(item.noradCatId) && selectedAssets.length >= 10"
+            hide-details
+            color="primary"
+            @change="() => toggleItem(item)"
+          />
+        </template>
 
-      <!-- No Data Slot -->
-      <template #no-data>
-        <v-alert
-          :value="true"
-          type="info"
-          border="left"
-          color="blue lighten-3"
-        >
-          No satellite data found
-        </v-alert>
-      </template>
-    </v-data-table>
+        <!-- No Data Slot -->
+        <template #no-data>
+          <v-alert
+            :value="true"
+            type="info"
+            border="left"
+            color="blue lighten-3"
+          >
+            No satellite data found
+          </v-alert>
+        </template>
+      </v-data-table>
+    </div>
+
+    <v-progress-linear
+      v-if="loadingMore"
+      indeterminate
+      color="blue lighten-2"
+      height="4"
+    />
   </div>
 </template>
 
@@ -80,6 +82,8 @@ export default {
   data() {
     return {
       selectAll: false,
+      itemsToShow: 50,
+      loadingMore: false,
       headers: [
         { text: "", value: "action", width: 10 },
         { text: "NORADID", value: "noradCatId" },
@@ -93,11 +97,6 @@ export default {
   computed: {
     ...mapState(["selectedAssets"]),
     ...mapGetters(["filteredSatelliteItems", "isSelected", "allSatellites"]),
-    
-    // Show full list initially, fallback to filtered list if filters applied
-    visibleItems() {
-      return this.isFilterApplied ? this.filteredSatelliteItems : this.allSatellites;
-    },
 
     isFilterApplied() {
       return this.$store.state.filters &&
@@ -105,12 +104,22 @@ export default {
           (val) => Array.isArray(val) ? val.length : val
         );
     },
+
+    visibleItems() {
+      const items = this.isFilterApplied
+        ? this.filteredSatelliteItems
+        : this.allSatellites;
+      return items.slice(0, this.itemsToShow);
+    },
   },
   watch: {
     selectedAssets() {
       const firstTen = this.visibleItems.slice(0, 10);
-      const allSelected = firstTen.every(item => this.isSelected(item.noradCatId));
+      const allSelected = firstTen.every((item) => this.isSelected(item.noradCatId));
       this.selectAll = allSelected;
+    },
+    filteredSatelliteItems() {
+      this.itemsToShow = 50;
     },
   },
   mounted() {
@@ -122,7 +131,7 @@ export default {
       "addAsset",
       "removeAsset",
       "updateFilters",
-      "clearSelectedAssets", // use this in SelectedAssets.vue ClearAll button
+      "clearSelectedAssets",
     ]),
 
     onFilterChange(filters) {
@@ -139,13 +148,6 @@ export default {
 
     toggleSelectAll() {
       if (this.selectAll) {
-        // Uncheck only the first 10 that are currently selected
-        this.visibleItems.slice(0, 10).forEach((item) => {
-          if (this.isSelected(item.noradCatId)) {
-            this.removeAsset(item.noradCatId);
-          }
-        });
-      } else {
         const unselected = this.visibleItems.filter(
           (item) => !this.isSelected(item.noradCatId)
         );
@@ -153,6 +155,32 @@ export default {
         unselected.slice(0, remaining).forEach((item) => {
           this.addAsset(item);
         });
+      } else {
+        this.visibleItems.slice(0, 10).forEach((item) => {
+          if (this.isSelected(item.noradCatId)) {
+            this.removeAsset(item.noradCatId);
+          }
+        });
+      }
+    },
+
+    handleScroll() {
+      const wrapper = this.$refs.scrollWrapper;
+      if (!wrapper) return;
+
+      const bottomReached =
+        wrapper.scrollTop + wrapper.clientHeight >= wrapper.scrollHeight - 50;
+
+      if (
+        bottomReached &&
+        this.itemsToShow < this.filteredSatelliteItems.length &&
+        !this.loadingMore
+      ) {
+        this.loadingMore = true;
+        setTimeout(() => {
+          this.itemsToShow += 50;
+          this.loadingMore = false;
+        }, 300);
       }
     },
   },
@@ -162,5 +190,16 @@ export default {
 <style scoped>
 .white--text {
   color: white !important;
+}
+
+.custom-scroll-wrapper {
+  max-height: 450px;
+  overflow-y: auto;
+}
+
+::v-deep(.v-data-table__wrapper) {
+  overflow-y: visible !important;
+  max-height: unset !important;
+  height: auto !important;
 }
 </style>
