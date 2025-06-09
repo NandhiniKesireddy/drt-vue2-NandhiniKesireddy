@@ -66,7 +66,7 @@
           />
         </template>
 
-        <template #item.objectType="{ item }">
+        <template #item.typeIcon="{ item }">
           <v-icon
             :color="getObjectTypeColor(item.objectType)"
             small
@@ -114,13 +114,14 @@ export default {
       itemsToShow: 50,
       loadingMore: false,
       headers: [
-        { text: "", value: "action", width: 10 },
-        { text: "NORADID", value: "noradCatId" },
-        { text: "Name", value: "name" },
-        { text: "COSPARID", value: "intlDes" },
-        { text: "Regime", value: "orbitCode" },
-        { text: "Country", value: "countryCode" },
-        { text: "Type", value: "objectType", width: 80 },
+        { text: '', value: 'action', width: 10, sortable: false },
+        { text: 'NORADID', value: 'noradCatId', sortable: true },
+        { text: 'Name', value: 'name', sortable: true },
+        { text: 'OrbitCode', value: 'orbitCode', sortable: false },
+        { text: 'ObjectType', value: 'objectType', sortable: false, width: 80 },
+        { text: 'Country', value: 'countryCode', sortable: true },
+        { text: 'Launch Date', value: 'launchDate', sortable: true },
+        { text: "Type", value: "typeIcon", sortable: false, width: 80 },
       ],
     };
   },
@@ -217,35 +218,34 @@ export default {
         }, 300);
       }
     },
-      getObjectTypeIcon(type) {
-    switch (type?.toUpperCase()) {
-      case 'PAYLOAD':
-        return 'mdi-satellite-variant';
-      case 'DEBRIS':
-        return 'mdi-close-octagon';
-      case 'ROCKET BODY':
-        return 'mdi-rocket';
-      case 'UNKNOWN':
-        return 'mdi-help-circle';
-      default:
-        return 'mdi-help-circle-outline';
-    }
-  },
-  getObjectTypeColor(type) {
-    switch (type?.toUpperCase()) {
-      case 'PAYLOAD':
-        return 'blue';
-      case 'DEBRIS':
-        return 'red';
-      case 'ROCKET BODY':
-        return 'green';
-      case 'UNKNOWN':
-        return 'grey';
-      default:
-        return 'grey';
-    }
-  },
-
+    getObjectTypeIcon(type) {
+      switch (type?.toUpperCase()) {
+        case 'PAYLOAD':
+          return 'mdi-satellite-variant';
+        case 'DEBRIS':
+          return 'mdi-close-octagon';
+        case 'ROCKET BODY':
+          return 'mdi-rocket';
+        case 'UNKNOWN':
+          return 'mdi-help-circle';
+        default:
+          return 'mdi-help-circle-outline';
+      }
+    },
+    getObjectTypeColor(type) {
+      switch (type?.toUpperCase()) {
+        case 'PAYLOAD':
+          return 'blue';
+        case 'DEBRIS':
+          return 'red';
+        case 'ROCKET BODY':
+          return 'green';
+        case 'UNKNOWN':
+          return 'grey';
+        default:
+          return 'grey';
+      }
+    },
   },
 };
 </script>
