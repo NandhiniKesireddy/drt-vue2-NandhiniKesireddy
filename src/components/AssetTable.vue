@@ -12,8 +12,15 @@
       You can select a maximum of 10 assets only.
     </v-snackbar>
 
-    <v-row no-gutters align="center" class="ma-0 pa-0">
-      <v-col cols="2" style="color: white !important">
+    <v-row
+      no-gutters
+      align="center"
+      class="ma-0 pa-0"
+    >
+      <v-col
+        cols="2"
+        style="color: white !important"
+      >
         <v-checkbox
           v-model="selectAll"
           hide-details
@@ -27,14 +34,20 @@
         </v-checkbox>
       </v-col>
       <v-col cols="8" />
-      <v-col cols="2" class="text-right">
+      <v-col
+        cols="2"
+        class="text-right"
+      >
         <span class="white--text text-caption">
           {{ visibleItems.length }} Objects
         </span>
       </v-col>
     </v-row>
 
-    <v-divider class="ma-1" color="grey darken-1" />
+    <v-divider
+      class="ma-1"
+      color="grey darken-1"
+    />
 
     <v-skeleton-loader
       v-if="isLoading"
@@ -70,7 +83,10 @@
         </template>
 
         <template #item.typeIcon="{ item }">
-          <v-icon :color="getObjectTypeColor(item.objectType)" small>
+          <v-icon
+            :color="getObjectTypeColor(item.objectType)"
+            small
+          >
             {{ getObjectTypeIcon(item.objectType) }}
           </v-icon>
         </template>
@@ -80,7 +96,12 @@
         </template>
 
         <template #no-data>
-          <v-alert :value="true" type="info" border="left" color="blue lighten-3">
+          <v-alert
+            :value="true"
+            type="info"
+            border="left"
+            color="blue lighten-3"
+          >
             No satellite data found
           </v-alert>
         </template>

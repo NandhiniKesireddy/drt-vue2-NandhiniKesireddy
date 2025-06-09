@@ -2,7 +2,9 @@
 <!-- eslint-disable vue/v-slot-style -->
 <template>
   <v-container>
-    <h2 class="white--text mb-4">Selected Assets</h2>
+    <h2 class="white--text mb-4">
+      Selected Assets
+    </h2>
 
     <v-data-table
       :headers="headers"
