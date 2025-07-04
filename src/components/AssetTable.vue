@@ -2,15 +2,17 @@
 <template>
   <div class="pr-5 pt-3">
     <top-bar @filter-change="onFilterChange" />
-    <v-snackbar
+    <!-- <v-snackbar
       v-model="showAlert"
       top
       right
       color="red darken-2"
       timeout="3000"
+      elevation="10"
+      style="position: fixed; z-index: 9999;"
     >
       You can select a maximum of 10 assets only.
-    </v-snackbar>
+    </v-snackbar> -->
 
     <v-row
       no-gutters

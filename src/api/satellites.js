@@ -1,11 +1,13 @@
 import axios from 'axios';
 
-export function fetchSatellites(objectTypes = [], attributes = []) {
+export function fetchSatellites(objectTypes, attributes = []) {
   const params = {
-    objectTypes: objectTypes.join(','),
-    attributes: attributes.join(',')
+    attributes: Array.isArray(attributes) ? attributes.join(',') : ''
   };
 
-  // Use the proxy route
-  return axios.get(`/api/satellites`, { params });
+  if (Array.isArray(objectTypes) && objectTypes.length) {
+    params.objectTypes = objectTypes.join(',');
+  }
+
+  return axios.get('/api/satellites', { params });
 }

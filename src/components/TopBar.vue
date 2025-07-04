@@ -41,7 +41,7 @@
           dense 
           clearable
           @keyup.enter="emitFilters"
-          @click:append="emitFilters"
+          @click:append="applyFilters()"
           @click:clear="resetFilters"
         />
       </v-col>
@@ -55,7 +55,7 @@
           dense 
           clearable
           multiple
-          @change="emitFilters"
+          @click="applyFilters()"
         />
       </v-col>
 
@@ -67,7 +67,7 @@
           solo 
           dense 
           clearable
-          @change="emitFilters"
+          @click="applyFilters()"
         />
       </v-col>
 
@@ -79,19 +79,19 @@
           solo 
           dense 
           clearable
-          @change="emitFilters"
+          @click="applyFilters()"
         />
       </v-col>
 
       <v-col cols="2">
         <v-select
           v-model="selectedPurpose"
-          :items="purposes"
+          :items="satellitePurposes"
           label="Purpose"
           solo 
           dense 
           clearable
-          @change="emitFilters"
+          @click="applyFilters()"
         />
       </v-col>
     </v-row>
@@ -134,7 +134,34 @@ export default {
       selectedPurpose: '',
       selectedConstellation: [],
       selectedObjectTypes: ['ROCKET BODY', 'DEBRIS', 'UNKNOWN', 'PAYLOAD'],
-      purposes: ['COMMUNICATION', 'EARTH OBSERVATION', 'NAVIGATION', 'SCIENCE']
+      satellitePurposes: [
+      "All",
+      "Communications",
+      "Earth Observation",
+      "Navigation",
+      "Meteorology",
+      "Scientific Research",
+      "Technology Demonstration",
+      "Reconnaissance",
+      "Surveillance",
+      "Signals Intelligence (SIGINT)",
+      "Infrared Imaging",
+      "Radar Imaging",
+      "Astronomy",
+      "Space Science",
+      "Geodesy",
+      "Calibration",
+      "Early Warning",
+      "Amateur Radio",
+      "Broadcasting",
+      "Environmental Monitoring",
+      "Military Test",
+      "CubeSat / Experimental",
+      "Education",
+      "Space Exploration",
+      "Interplanetary Mission",
+      "Unknown"
+    ],
     };
   },
   computed: {
@@ -150,7 +177,7 @@ export default {
     }
   },
    mounted() {
-    this.$store.dispatch('fetchSatellitesData'); // Initial fetch
+    this.$store.dispatch('fetchSatellitesData');
   },
   methods: {
     toggleType(typeList) {
